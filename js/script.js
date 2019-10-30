@@ -123,15 +123,14 @@ function generateCardsListeners(users){
               }
               
               const modalContainer = generateModalHTML(data);
-              const exitButton = modalContainer.getElementById('modal-close-btn');
+              // Maybe, create a function to add all event listeners to the modal div buttons
+              const exitButton = modalContainer.querySelector('#modal-close-btn');
               exitButton.addEventListener('click', () => {
                   modalContainer.remove();
               })
           });
     }
 }
-
-
 
 // ------------------------------------------
 //  PAGE INITIAL SET UP
@@ -147,12 +146,3 @@ promise
   .catch(err => console.log('Oops... An error occured:', err));
 
 
-// ------------------------------------------
-//  EVENT LISTENERS
-// ------------------------------------------
-
-gallery.addEventListener('click', (event) => {
-    if (event.target.parentNode.className === 'card') {
-        console.log('okay!');
-    }
-});
