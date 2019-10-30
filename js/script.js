@@ -180,16 +180,6 @@ function generateCardsListeners(users){
     return users;
 }
 
-function addButtonsListeners(modalContainer){
-    // continue
-    const exitButton = modalContainer.querySelector('#modal-close-btn');
-    const prevButton = modalContainer.querySelector('#modal-prev');
-    const nextButton = modalContainer.querySelector('#modal-next');
-    exitButton.addEventListener('click', () => modalContainer.remove());
-    prevButton.addEventListener('click', () => {});
-}
-
-
 // ------------------------------------------
 //  PAGE INITIAL SET UP
 // ------------------------------------------
