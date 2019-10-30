@@ -1,5 +1,7 @@
 // This version of the API is not affected by its future updates
 const usersURL = 'https://randomuser.me/api/1.3/';
+const gallery = document.getElementById('gallery');
+
 
 // ------------------------------------------
 //  FETCH FUNCTIONS
@@ -37,6 +39,7 @@ async function getRandomUsers(numberOfUsers){
     return users;
 }
 
+
 // ------------------------------------------
 //  HELPER FUNCTIONS 
 // ------------------------------------------
@@ -65,6 +68,65 @@ function generateGaleryHTML(data){
     document.getElementById('gallery').innerHTML += html;
 }
 
+function generateModalHTML(data){
+    const img = data.picture.medium;
+    const firstAndLastName = data.name.first + ' ' + data.name.last;
+    const email = data.email;
+    const city = data.location.city;
+    const phone = data.phone;
+    const address = data.location.street.name + ', ' 
+                        + data.location.street.number
+                        + '. ' + data.location.city;
+    const birthday = data.registered.date
+                        .replace(/^(\d{4})-(\d{2})-(\d{2}).*/, 'Birthday: $2/$3/$1');
+    
+    const html = `
+        <div class="modal">
+            <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
+            <div class="modal-info-container">
+                <img class="modal-img" src="${img}" alt="profile picture">
+                <h3 id="name" class="modal-name cap">${firstAndLastName}</h3>
+                <p class="modal-text">${email}</p>
+                <p class="modal-text cap">${city}</p>
+                <hr>
+                <p class="modal-text">${phone}</p>
+                <p class="modal-text">${address}</p>
+                <p class="modal-text">${birthday}</p>
+            </div>
+        </div>
+
+        <div class="modal-btn-container">
+            <button type="button" id="modal-prev" class="modal-prev btn">Prev</button>
+            <button type="button" id="modal-next" class="modal-next btn">Next</button>
+        </div>
+    `;
+    
+    const modalContainer = document.createElement('div');
+    modalContainer.className = 'modal-container';
+    modalContainer.innerHTML = html;
+
+    document.querySelector('body').appendChild(modalContainer);
+
+}
+
+function generateCardsEventListeners(users){
+    const cards = gallery.children;
+      
+    for (let card of cards){
+          card.addEventListener('click', () => {
+              let data;
+              const email = card.querySelector('p').textContent;
+              for (let user of users){
+                  if (user.email === email){
+                      data = user;
+                      break;
+                  }
+              }
+              generateModalHTML(data);
+          });
+      }
+}
+
 // ------------------------------------------
 //  PAGE INITIAL SET UP
 // ------------------------------------------
@@ -73,10 +135,18 @@ const promise = getRandomUsers(12);
 promise
   .then( users => {
       users.map( user => generateGaleryHTML(user) );
-  } )
+      return users;
+  })
+  .then( generateCardsEventListeners )
   .catch(err => console.log('Oops... An error occured:', err));
+
 
 // ------------------------------------------
 //  EVENT LISTENERS
 // ------------------------------------------
 
+gallery.addEventListener('click', (event) => {
+    if (event.target.parentNode.className === 'card') {
+        console.log('okay!');
+    }
+});
