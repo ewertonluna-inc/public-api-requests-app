@@ -104,12 +104,11 @@ function generateModalHTML(data){
     const modalContainer = document.createElement('div');
     modalContainer.className = 'modal-container';
     modalContainer.innerHTML = html;
-
     document.querySelector('body').appendChild(modalContainer);
-
+    return modalContainer;
 }
 
-function generateCardsEventListeners(users){
+function generateCardsListeners(users){
     const cards = gallery.children;
       
     for (let card of cards){
@@ -122,10 +121,17 @@ function generateCardsEventListeners(users){
                       break;
                   }
               }
-              generateModalHTML(data);
+              
+              const modalContainer = generateModalHTML(data);
+              const exitButton = modalContainer.getElementById('modal-close-btn');
+              exitButton.addEventListener('click', () => {
+                  modalContainer.remove();
+              })
           });
-      }
+    }
 }
+
+
 
 // ------------------------------------------
 //  PAGE INITIAL SET UP
@@ -137,7 +143,7 @@ promise
       users.map( user => generateGaleryHTML(user) );
       return users;
   })
-  .then( generateCardsEventListeners )
+  .then( generateCardsListeners )
   .catch(err => console.log('Oops... An error occured:', err));
 
 
