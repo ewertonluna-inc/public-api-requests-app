@@ -1,5 +1,5 @@
 // This version of the API is not affected by its future updates
-const usersURL = 'https://randomuser.me/api/1.3/';
+const usersURL = 'https://randomuser.me/api/1.3/?nat=gb';
 const gallery = document.getElementById('gallery');
 
 
@@ -43,6 +43,51 @@ async function getRandomUsers(numberOfUsers){
 //  HELPER FUNCTIONS 
 // ------------------------------------------
 
+function generateSearchForm(){
+
+
+    const searchContainer = document.querySelector('.search-container');
+    const html = `
+        <form action="#" method="get">
+            <input type="search" id="search-input" class="search-input" placeholder="Search...">
+            <input type="submit" value="&#x1F50D;" id="search-submit" class="search-submit">
+        </form>
+    `;
+    searchContainer.innerHTML = html;
+
+
+}
+
+function generateSearchListeners() {
+    // filter function will only be used inside the event handlers
+    function filter() {
+        const cards = gallery.children;
+        const inputText = searchInput.value;
+        
+        $(cards).show();
+        for (let card of cards){
+            const name = card.querySelector('#name').textContent;
+            if (inputText != ''){
+                if (name.toLowerCase().includes(inputText.toLowerCase())) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            }
+        }
+    }
+    const button = document.getElementById('search-submit');
+    const searchInput = document.getElementById('search-input');
+    button.addEventListener('click', (e) => {
+        e.preventDefault();
+        filter();
+
+    });
+    searchInput.addEventListener('input', () => {
+        filter();
+    });
+}
+
 /**
  * Generates HTML for the gallery
  * @param {Object} user User object
@@ -76,6 +121,14 @@ function createModalContainer(html){
     modalContainer.className = 'modal-container';
     modalContainer.innerHTML = html;
     document.querySelector('body').appendChild(modalContainer);
+
+    if (getUserIndex(modalContainer) === 0) {
+        const prevButton = modalContainer.querySelector('#modal-prev');
+        prevButton.style.opacity = '.6';
+    } else if (getUserIndex(modalContainer) === 11) {
+        const nextButton = modalContainer.querySelector('#modal-next');
+        nextButton.style.opacity = '.6';
+    }
 }
 
 function getUserIndex(modalContainer){
@@ -142,18 +195,16 @@ function generateModalListeners(modalContainer, users){
     const nextButton = modalContainer.querySelector('#modal-next');
     exitButton.addEventListener('click', () => modalContainer.remove());
     prevButton.addEventListener('click', () => {
-        modalContainer.remove();
         if (userIndex != 0){
+            modalContainer.remove();
             generateModalHTML(users[userIndex - 1], users);    
         }
-        
     });
     nextButton.addEventListener('click', () => {
-        modalContainer.remove();
-        if (userIndex != 11){
+        if (userIndex != 11) {
+            modalContainer.remove();
             generateModalHTML(users[userIndex + 1], users);    
         }
-        
     });
 }
 
@@ -188,6 +239,8 @@ const promise = getRandomUsers(12);
 promise
   .then( generateGaleryHTML )
   .then( generateCardsListeners )
+  .then( () => generateSearchForm() )
+  .then( () => generateSearchListeners())
   .catch(err => console.log('Oops... An error occured:', err));
 
 
