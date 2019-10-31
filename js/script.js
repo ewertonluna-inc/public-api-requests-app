@@ -279,5 +279,3 @@ promise
   .then( () => generateSearchForm() )
   .then( () => generateSearchListeners())
   .catch(err => console.log('Oops... An error occured:', err));
-
-
