@@ -43,85 +43,18 @@ async function getRandomUsers(numberOfUsers){
 //  HELPER FUNCTIONS 
 // ------------------------------------------
 
-function generateSearchForm(){
-
-
-    const searchContainer = document.querySelector('.search-container');
-    const html = `
-        <form action="#" method="get">
-            <input type="search" id="search-input" class="search-input" placeholder="Search...">
-            <input type="submit" value="&#x1F50D;" id="search-submit" class="search-submit">
-        </form>
-    `;
-    searchContainer.innerHTML = html;
-
-
-}
-
-function generateSearchListeners() {
-    // filter function will only be used inside the event handlers
-    function filter() {
-        const cards = gallery.children;
-        const inputText = searchInput.value;
-        
-        $(cards).show();
-        for (let card of cards){
-            const name = card.querySelector('#name').textContent;
-            if (inputText != ''){
-                if (name.toLowerCase().includes(inputText.toLowerCase())) {
-                    card.style.display = '';
-                } else {
-                    card.style.display = 'none';
-                }
-            }
-        }
-    }
-    const button = document.getElementById('search-submit');
-    const searchInput = document.getElementById('search-input');
-    button.addEventListener('click', (e) => {
-        e.preventDefault();
-        filter();
-
-    });
-    searchInput.addEventListener('input', () => {
-        filter();
-    });
-}
-
 /**
- * Generates HTML for the gallery
- * @param {Object} user User object
+ * Appends modal window to the page
+ * @param {String} html HTML to be appended to the modal-container div
  */
-function generateGaleryHTML(users){
-    users.map( user => {
-        const img = user.picture.medium;
-        const firstAndLastName = user.name.first + ' ' + user.name.last;
-        const email = user.email;
-        const cityAndState = user.location.city + ', ' + user.location.state;
-        const html = `
-            <div class="card">
-                <div class="card-img-container">
-                    <img class="card-img" src="${img}" alt="profile picture">
-                </div>
-                <div class="card-info-container">
-                    <h3 id="name" class="card-name cap">${firstAndLastName}</h3>
-                    <p class="card-text">${email}</p>
-                    <p class="card-text cap">${cityAndState}</p>
-                </div>
-            </div>
-        `;
-        document.getElementById('gallery').innerHTML += html;
-    } );
-    
-    return users;
-}
-
-function createModalContainer(html){
+function appendModalContainer(html){
     const modalContainer = document.createElement('div');
     modalContainer.className = 'modal-container';
     modalContainer.innerHTML = html;
     document.querySelector('body').appendChild(modalContainer);
 
+    // If the user to be displayed is the first or the last one on the page, turn opacity down
+    // of the prev button and of the next button, respectively
     if (getUserIndex(modalContainer) === 0) {
         const prevButton = modalContainer.querySelector('#modal-prev');
         prevButton.style.opacity = '.6';
@@ -131,6 +64,12 @@ function createModalContainer(html){
     }
 }
 
+/**
+ * Gets the index of the user showing up on the modal window relative to
+ * its position among the cards.
+ * @param {Element} modalContainer modal container div element
+ * @returns {Integer} Index of the user showing up on the modal window
+ */
 function getUserIndex(modalContainer){
     const modalEmail = modalContainer.querySelector('p').textContent;
     const cards = document.getElementsByClassName('card');
@@ -144,10 +83,16 @@ function getUserIndex(modalContainer){
         }
         userIndex++;
     }
-
-    return null;
 }
 
+/**
+ * Generates modal HTML and passes it to the generateModalContainer helper function, so it is
+ * appended to the page.
+ * Sets all the event listeners for the modal window using generateModalListeners using a helper function.
+ * @param {User Object} data User object used to get data for the html.
+ * @param {Array} users user object array.
+ * @returns {Element} container for the modal window html
+ */
 function generateModalHTML(data, users){
     const img = data.picture.medium;
     const firstAndLastName = data.name.first + ' ' + data.name.last;
@@ -181,13 +126,18 @@ function generateModalHTML(data, users){
         </div>
     `;
     
-    createModalContainer(html);
+    appendModalContainer(html);
     const modalContainer = document.getElementsByClassName('modal-container')[0];
     generateModalListeners(modalContainer, users);
     
     return modalContainer;
 }
 
+/**
+ * Generates all the event listeners for the modal window.
+ * @param {Element} modalContainer Div element.
+ * @param {Array} users user object array.
+ */
 function generateModalListeners(modalContainer, users){
     const userIndex = getUserIndex(modalContainer);
     const exitButton = modalContainer.querySelector('#modal-close-btn');
@@ -208,7 +158,47 @@ function generateModalListeners(modalContainer, users){
     });
 }
 
+// ------------------------------------------
+//  MAIN FUNCTIONS
+// ------------------------------------------
 
+
+
+
+
+/**
+ * Generates HTML for the gallery
+ * @param {Object} user User object
+ * @returns users object to be used on Promise chainning
+ */
+function generateGaleryHTML(users){
+    users.map( user => {
+        const img = user.picture.medium;
+        const firstAndLastName = user.name.first + ' ' + user.name.last;
+        const email = user.email;
+        const cityAndState = user.location.city + ', ' + user.location.state;
+        const html = `
+            <div class="card">
+                <div class="card-img-container">
+                    <img class="card-img" src="${img}" alt="profile picture">
+                </div>
+                <div class="card-info-container">
+                    <h3 id="name" class="card-name cap">${firstAndLastName}</h3>
+                    <p class="card-text">${email}</p>
+                    <p class="card-text cap">${cityAndState}</p>
+                </div>
+            </div>
+        `;
+        document.getElementById('gallery').innerHTML += html;
+    } );
+    
+    return users;
+}
+
+/**
+ * Generates click event listeners for all of the card div elements.
+ * @param {Array} users user object array
+ */
 function generateCardsListeners(users){
     const cards = gallery.children;
       
@@ -229,6 +219,53 @@ function generateCardsListeners(users){
         });
     }
     return users;
+}
+
+/**
+ * Appends search form to the page
+ */
+function generateSearchForm(){
+    const searchContainer = document.querySelector('.search-container');
+    const html = `
+        <form action="#" method="get">
+            <input type="search" id="search-input" class="search-input" placeholder="Search...">
+            <input type="submit" value="&#x1F50D;" id="search-submit" class="search-submit">
+        </form>
+    `;
+    searchContainer.innerHTML = html;
+}
+
+/**
+ * Sets event listeners for the search form
+ */
+function generateSearchListeners() {
+    // filter function will only be used inside the event handlers
+    function filter() {
+        const cards = gallery.children;
+        const inputText = searchInput.value;
+        
+        $(cards).show();
+        for (let card of cards){
+            const name = card.querySelector('#name').textContent;
+            if (inputText != ''){
+                if (name.toLowerCase().includes(inputText.toLowerCase())) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            }
+        }
+    }
+    const button = document.getElementById('search-submit');
+    const searchInput = document.getElementById('search-input');
+    button.addEventListener('click', (e) => {
+        e.preventDefault();
+        filter();
+
+    });
+    searchInput.addEventListener('input', () => {
+        filter();
+    });
 }
 
 // ------------------------------------------
