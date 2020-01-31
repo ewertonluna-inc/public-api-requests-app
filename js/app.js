@@ -162,10 +162,6 @@ function generateModalListeners(modalContainer, users){
 //  MAIN FUNCTIONS
 // ------------------------------------------
 
-
-
-
-
 /**
  * Generates HTML for the gallery
  * @param {Object} user User object
